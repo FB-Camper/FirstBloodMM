@@ -18,7 +18,7 @@ export async function GET() {
   const challenge = base64url(crypto.createHash("sha256").update(verifier).digest());
   const state = base64url(crypto.randomBytes(24));
 
-  const authUrl = new URL("https://first-blood-mm.vercel.app/api/auth/x/callback");
+  const authUrl = new URL("https://x.com/i/oauth2/authorize");
   authUrl.searchParams.set("response_type", "code");
   authUrl.searchParams.set("client_id", env.X_CLIENT_ID);
   authUrl.searchParams.set("redirect_uri", env.X_REDIRECT_URI);

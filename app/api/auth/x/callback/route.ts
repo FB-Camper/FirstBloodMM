@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { env } from "@/lib/env";
-import { clearOAuthCookie, getOAuthCookie, setSessionCookie } from "@/lib/session";
+import {
+  clearOAuthCookieOnResponse,
+  getOAuthCookie,
+  setSessionCookieOnResponse
+} from "@/lib/session";
+
+export const runtime = "nodejs";
 
 function basicAuthHeader(clientId: string, clientSecret: string) {
   const raw = `${clientId}:${clientSecret}`;
@@ -19,9 +25,6 @@ async function exchangeToken(params: {
   body.set("redirect_uri", env.X_REDIRECT_URI);
   body.set("code_verifier", params.codeVerifier);
 
-  // IMPORTANT:
-  // - Confidential clients (Web App / bots) should authenticate with Authorization header. :contentReference[oaicite:2]{index=2}
-  // - Public clients (SPA/Native) must include client_id in the body. :contentReference[oaicite:3]{index=3}
   const headers: Record<string, string> = {
     "Content-Type": "application/x-www-form-urlencoded"
   };
@@ -64,7 +67,6 @@ async function fetchMe(accessToken: string) {
   const json = await res.json().catch(() => ({}));
   if (!res.ok) return { ok: false as const, detail: json };
 
-  // Expected shape: { data: { id, name, username } }
   return { ok: true as const, me: json as any };
 }
 
@@ -76,77 +78,90 @@ export async function GET(req: Request) {
   const errorDescription = url.searchParams.get("error_description");
 
   if (error) {
-    clearOAuthCookie();
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "X OAuth error.", detail: { error, errorDescription } },
       { status: 400 }
     );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
   if (!code || !returnedState) {
-    clearOAuthCookie();
-    return NextResponse.json({ error: "Missing code/state from X." }, { status: 400 });
+    const res = NextResponse.json(
+      { error: "Missing code/state from X." },
+      { status: 400 }
+    );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
   const oauth = getOAuthCookie();
+
   if (!oauth) {
-    // This is almost always caused by hostname mismatch:
-    // starting login on 127.0.0.1 but callback is localhost (or vice versa).
     return NextResponse.json(
       {
         error: "Invalid OAuth state.",
         detail:
-          "OAuth cookie missing. Make sure you start login and receive callback on the SAME hostname (use only http://localhost:3000)."
+          "OAuth cookie missing. Make sure login starts and finishes on the same domain, and that your X callback URL matches production exactly."
       },
       { status: 400 }
     );
   }
 
   if (oauth.state !== returnedState) {
-    clearOAuthCookie();
-    return NextResponse.json({ error: "Invalid OAuth state." }, { status: 400 });
+    const res = NextResponse.json(
+      { error: "Invalid OAuth state." },
+      { status: 400 }
+    );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
-  // Exchange auth code for token
-  const tokenRes = await exchangeToken({ code, codeVerifier: oauth.verifier });
+  const tokenRes = await exchangeToken({
+    code,
+    codeVerifier: oauth.verifier
+  });
+
   if (!tokenRes.ok) {
-    clearOAuthCookie();
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "Failed token exchange with X.", detail: tokenRes.detail },
       { status: 400 }
     );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
   const accessToken = tokenRes.token.access_token;
 
-  // Fetch user identity
   const meRes = await fetchMe(accessToken);
   if (!meRes.ok) {
-    clearOAuthCookie();
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "Failed to fetch X user.", detail: meRes.detail },
       { status: 400 }
     );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
   const xUser = meRes.me?.data;
   if (!xUser?.id || !xUser?.username) {
-    clearOAuthCookie();
-    return NextResponse.json(
+    const res = NextResponse.json(
       { error: "Malformed /users/me response.", detail: meRes.me },
       { status: 400 }
     );
+    clearOAuthCookieOnResponse(res);
+    return res;
   }
 
-  // Create a signed session cookie for your app
-  setSessionCookie({
-    userId: xUser.id,        // your internal userId (you can map differently later)
+  const res = NextResponse.redirect(new URL("/bracket", url.origin));
+
+  setSessionCookieOnResponse(res, {
+    userId: xUser.id,
     username: xUser.username,
     xUserId: xUser.id
   });
 
-  clearOAuthCookie();
+  clearOAuthCookieOnResponse(res);
 
-  // Back to bracket
-  return NextResponse.redirect(new URL("/bracket", url.origin));
+  return res;
 }
