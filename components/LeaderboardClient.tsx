@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 type Entry = {
   rank: number;
+  userId?: string;
   username: string;
   handle: string;
   correct: number;
@@ -12,6 +11,7 @@ type Entry = {
   champion: string | null;
   championCorrect: boolean;
   finalFourCorrect: number;
+  submittedAt?: string;
   updatedAt: string;
   isMe?: boolean;
 };
@@ -22,27 +22,17 @@ type LeaderboardResponse = {
 };
 
 export function LeaderboardClient({ initial }: { initial: LeaderboardResponse }) {
-  const [data, setData] = useState(initial);
-
-  useEffect(() => {
-    const timer = setInterval(async () => {
-      const res = await fetch("/api/leaderboard", { cache: "no-store" });
-      if (!res.ok) return;
-      const json = (await res.json()) as LeaderboardResponse;
-      setData(json);
-    }, 60_000);
-
-    return () => clearInterval(timer);
-  }, []);
+  const data = initial;
 
   return (
     <div className="space-y-4">
       {data.me && (
         <section className="card border-red-500/60">
           <p className="text-xs uppercase tracking-wider text-red-300">My Entry</p>
-          <p className="text-xl font-semibold">@{data.me.username}</p>
+          <p className="text-xl font-semibold">{data.me.handle}</p>
           <p className="text-sm text-zinc-300">
-            {data.me.correct}/{data.me.decided} ({data.me.accuracy.toFixed(1)}%) - Champion: {data.me.champion ?? "TBD"}
+            {data.me.correct}/{data.me.decided} ({data.me.accuracy.toFixed(1)}%) — Champion:{" "}
+            {data.me.champion ?? "TBD"}
           </p>
         </section>
       )}
@@ -62,7 +52,7 @@ export function LeaderboardClient({ initial }: { initial: LeaderboardResponse })
           </thead>
           <tbody>
             {data.entries.map((entry) => (
-              <tr key={entry.handle} className={entry.isMe ? "bg-red-950/40" : ""}>
+              <tr key={`${entry.handle}-${entry.rank}`} className={entry.isMe ? "bg-red-950/40" : ""}>
                 <td className="px-2 py-2">{entry.rank}</td>
                 <td className="px-2 py-2">{entry.handle}</td>
                 <td className="px-2 py-2">
@@ -71,9 +61,11 @@ export function LeaderboardClient({ initial }: { initial: LeaderboardResponse })
                 <td className="px-2 py-2">{entry.accuracy.toFixed(1)}%</td>
                 <td className="px-2 py-2">{entry.champion ?? "TBD"}</td>
                 <td className="px-2 py-2">
-                  Champion {entry.championCorrect ? "?" : "?"} | FF {entry.finalFourCorrect}
+                  Champion {entry.championCorrect ? "✓" : "—"} | FF {entry.finalFourCorrect}
                 </td>
-                <td className="px-2 py-2">{new Date(entry.updatedAt).toLocaleString()}</td>
+                <td className="px-2 py-2">
+                  {entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : "—"}
+                </td>
               </tr>
             ))}
           </tbody>

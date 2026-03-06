@@ -2,6 +2,7 @@ import { LeaderboardClient } from "@/components/LeaderboardClient";
 import { getAuthedUser } from "@/lib/auth";
 import { getServiceSupabase } from "@/lib/supabase";
 import { scoreEntry } from "@/lib/scoring";
+import { isLocked } from "@/lib/tournament";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function LeaderboardPage() {
   const supabase = getServiceSupabase();
   const me = await getAuthedUser();
+  const locked = isLocked();
 
   const [{ data: brackets, error: bracketsError }, { data: results, error: resultsError }] =
     await Promise.all([
@@ -39,7 +41,12 @@ export default async function LeaderboardPage() {
         username: (b.handle ?? "").replace(/^@/, "") || "unknown"
       };
 
-      return scoreEntry(user, b, resultMap);
+      const scored = scoreEntry(user, b, resultMap);
+
+      return {
+        ...scored,
+        champion: locked ? scored.champion : "Hidden until lock"
+      };
     })
     .sort((a, b) => {
       if (b.correct !== a.correct) return b.correct - a.correct;
