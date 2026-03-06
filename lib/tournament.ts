@@ -154,53 +154,33 @@ const IMAGE_MAP: Record<string, string> = {
   "Atlanta FaZe (Cold War)": "/teams/atlanta-faze-cold-war.jpg",
   "Chicago Huntsmen (MW 2019)": "/teams/chicago-huntsmen-mw2019.jpg",
   "Cloud9 (BO3)": "/teams/cloud9-bo3.jpg",
-
-  "compLexity Gaming (BO2-Ghosts)": "/teams/Complexity-gaming-bo2-ghosts.avif",
-
+  "compLexity Gaming (BO2-Ghosts)": "/teams/complexity-gaming-bo2-ghosts.avif",
   "Dallas Empire (MW 2019)": "/teams/dallas-empire-mw-2019.jpg",
   "Denial eSports (Advanced Warfare)": "/teams/denial-esports-advanced-warfare.avif",
-
-  "EnVyUs (Black Ops 3)": "/teams/Envyus-black-ops-3.jpg",
-
+  "EnVyUs (Black Ops 3)": "/teams/envyus-black-ops-3.jpg",
   "eUnited (Black Ops 4)": "/teams/eunited-b04.jpg",
-
   "Evil Geniuses (WWII)": "/teams/evil-geniuses-wwll.webp",
-
-  "Fariko Impact (Black Ops 2)": "/teams/Fariko-impact-black-ops-2.webp",
-
+  "Fariko Impact (Black Ops 2)": "/teams/fariko-impact-black-ops-2.webp",
   "FaZe Clan (BO3)": "/teams/faze-clan-bo3.jpg",
   "Florida Mutineers (MW 2019)": "/teams/florida-mutineers-mw2019.jpg",
-
-  "Gen.G (Black Ops 4)": "/teams/Gen.g-black-ops-4.webp",
-
-  "LAT (BO6)": "/teams/LAT-bo6.jpg",
-
-  "London Royal Ravens (MW 2019)": "/teams/London-royal-ravens-mw-2019.avif",
-
+  "Gen.G (Black Ops 4)": "/teams/gen.g-black-ops-4.webp",
+  "LAT (BO6)": "/teams/lat-bo6.jpg",
+  "London Royal Ravens (MW 2019)": "/teams/london-royal-ravens-mw-2019.avif",
   "Los Angeles Thieves (Vanguard)": "/teams/los-angeles-thieves-vanguard.jpg",
   "Mindfreak (BO3)": "/teams/mindfreak-bo3.webp",
   "New York Subliners (MWII)": "/teams/new-york-subliners-mwii.jpg",
-
   "OpTic Gaming (BO1)": "/teams/optic-gaming-bo1.jpg",
   "OpTic Gaming (BO3-IW)": "/teams/optic-gaming-bo3-iw.avif",
   "OpTic Gaming (MW3)": "/teams/optic-gaming-mw3.jpg",
-
   "OpTic Texas (BO6)": "/teams/optic-texas-bo6.jpg",
   "OpTic Texas (MWII)": "/teams/optic-texas-mwii.jpg",
-
   "Renegades (BO4)": "/teams/renegades-bo4.webp",
-
   "Rise Nation (WWII)": "/teams/rise-nation-wwll.jpg",
-
   "Seattle Surge (Vanguard)": "/teams/seattle-surge-vanguard.jpg",
-
   "Splyce (Infinite Warfare)": "/teams/splyce-infinite-warfae.jpg",
-
   "Strictly Business (BO2)": "/teams/strictly-business-bo2.png",
-
   "Team EnVy (Ghosts)": "/teams/team-envyus-ghosts.jpg",
   "Team Kaliber (Ghosts)": "/teams/team-kaliber-ghosts.jpg",
-
   "Toronto Ultra (Cold War)": "/teams/toronto-ultra-cold-war.jpg"
 };
 
